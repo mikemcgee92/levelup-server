@@ -1,0 +1,26 @@
+[
+  {
+    "model": "levelupapi.game",
+    "pk": 1,
+    "fields": {
+      "game_type": 1,
+      "title": "Betrayal at House on the Hill",
+      "maker": "Wizards of the Coast",
+      "gamer": 1,
+      "number_of_players": 6,
+      "skill_level": 5
+    }
+  },
+  {
+    "model": "levelupapi.game",
+    "pk": 2,
+    "fields": {
+      "game_type": 3,
+      "title": "Final Fantasy XIV",
+      "maker": "Square Enix",
+      "gamer": 1,
+      "number_of_players": 24,
+      "skill_level": 4
+    }
+  }
+]
