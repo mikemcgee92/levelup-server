@@ -15,11 +15,12 @@ class EventView(ViewSet):
     Returns:
       Response -- JSON serialized event
     """
-    
-    event = Event.objects.get(pk=pk)
-    serializer = EventSerializer(event)
-    
-    return Response(serializer.data)
+    try:
+      event = Event.objects.get(pk=pk)
+      serializer = EventSerializer(event)
+      return Response(serializer.data)
+    except Event.DoesNotExist as ex:
+      return Response({'No event exists with specified ID': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
   
   def list(self, request):
     """Handle GET requests to get all events
@@ -29,8 +30,12 @@ class EventView(ViewSet):
     """
     
     events = Event.objects.all()
-    serializer = EventSerializer(events, many=True)
     
+    event_game = request.query_params.get('game', None)
+    if event_game is not None:
+      events = events.filter(game=event_game)
+    
+    serializer = EventSerializer(events, many=True)
     return Response(serializer.data)
   
 class EventSerializer(serializers.ModelSerializer):
@@ -38,4 +43,5 @@ class EventSerializer(serializers.ModelSerializer):
   """
   class Meta:
     model = Event
-    fields = ('id', 'game', 'description', 'date', 'time', 'organizer')    
+    fields = ('id', 'game', 'description', 'date', 'time', 'organizer')
+    depth = 2    

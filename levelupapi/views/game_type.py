@@ -15,9 +15,12 @@ class GameTypeView(ViewSet):
     Returns:
       Response -- JSON serialized game type
     """
-    
-    game_type = GameType.objects.get(pk=pk)
-    serializer = GameTypeSerializer(game_type)
+    try:
+      game_type = GameType.objects.get(pk=pk)
+      serializer = GameTypeSerializer(game_type)
+      return Response(serializer.data)
+    except GameType.DoesNotExist as ex:
+      return Response({'No game type with such ID': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
     
     return Response(serializer.data)
   
