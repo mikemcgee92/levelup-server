@@ -17,7 +17,13 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 from rest_framework import routers
-from levelupapi.views import GameTypeView, GameView, EventView
+from levelupapi.views import (
+    GameTypeView, 
+    GameView, 
+    EventView,
+    check_user,
+    register_user
+)
 
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'gametypes', GameTypeView, 'gametype')
@@ -27,4 +33,8 @@ router.register(r'events', EventView, 'event')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
+    # Requests to http://localhost:8000/register will be routed to the register_user function
+    path('register', register_user),
+    # Requests to http://localhost:8000/checkuser will be routed to the login_user function
+    path('checkuser', check_user),
 ]
