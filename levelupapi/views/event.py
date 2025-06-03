@@ -36,6 +36,14 @@ class EventView(ViewSet):
     if event_game is not None:
       events = events.filter(game=event_game)
     
+    uid = request.META['HTTP_AUTHORIZATION']
+    gamer = Gamer.objects.get(uid=uid)
+    
+    for event in events:
+      # check to see if there is a row in the Event Games table that has the passed in gamer and event
+      event.joined = len(EventGamer.objects.filter(
+        gamer=gamer, event=event)) > 0
+    
     serializer = EventSerializer(events, many=True)
     return Response(serializer.data)
   
@@ -87,24 +95,25 @@ class EventView(ViewSet):
   def signup(self, request, pk):
     """Post request for a user to sign up for an event"""
     
-    gamer = Gamer.objects.get(uid=request.data["organizer"])
+    uid = request.META['HTTP_AUTHORIZATION']
+    gamer = Gamer.objects.get(uid=uid)
     event = Event.objects.get(pk=pk)
     attendee = EventGamer.objects.create(
       gamer=gamer,
       event=event
     )
-    return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)  
-  
-  @action(methods=['delete'], detail=True)
+    return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)
+
+  @action(methods=['delete'], detail=True) 
   def leave(self, request, pk):
     """Delete request for a user to resign from an event"""
     
-    gamer = Gamer.objects.get(uid=request.data["organizer"])
+    uid = request.META['HTTP_AUTHORIZATION']
+    gamer = Gamer.objects.get(uid=uid)
     event = Event.objects.get(pk=pk)
     attendee = EventGamer.objects.get(gamer=gamer, event=event)
     
     attendee.delete()
-    
     return Response({'message': 'Gamer removed'}, status=status.HTTP_204_NO_CONTENT)
   
 class EventSerializer(serializers.ModelSerializer):
@@ -112,5 +121,5 @@ class EventSerializer(serializers.ModelSerializer):
   """
   class Meta:
     model = Event
-    fields = ('id', 'game', 'description', 'date', 'time', 'organizer')
-    depth = 2    
+    fields = ('id', 'game', 'description', 'date', 'time', 'organizer', 'joined')
+    depth = 2
